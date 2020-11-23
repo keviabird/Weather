@@ -1,0 +1,39 @@
+"Settings" = "Settings";
+"UNITS" = "UNITS";
+"LANGUAGE" = "LANGUAGE";
+"Select language" = "Select language";
+"Sunrise" = "Sunrise";
+"Sunset" = "Sunset";
+"Visibility" = "Visibility";
+"Wind" = "Wind";
+"mi" = "mi";
+"m" = "m";
+"mph" = "mph";
+"mps" = "mps";
+"N" = "N";
+"NNE" = "NNE";
+"NE" = "NE";
+"ENE" = "ENE";
+"E" = "E";
+"ESE" = "ESE";
+"SE" = "SE";
+"SSE" = "SSE";
+"S" = "S";
+"SSW" = "SSW";
+"SW" = "SW";
+"WSW" = "WSW";
+"W" = "W";
+"WNW" = "WNW";
+"NNW" = "NNW";
+"NW" = "NW";
+
+
+"Metric" = "Metric";
+"Imperial" = "Imperial";
+
+"English" = "English";
+"German" = "German";
+"Hindi" = "Hindi";
+"Italian" = "Italian";
+"Japanese" = "Japanese";
+"Russian" = "Russian";

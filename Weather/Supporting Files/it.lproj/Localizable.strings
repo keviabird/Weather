@@ -1,0 +1,39 @@
+"Settings" = "Impostazioni";
+"UNITS" = "SISTEMA";
+"LANGUAGE" = "LINGUA";
+"Select language" = "Seleziona la lingua";
+"Sunrise" = "Alba";
+"Sunset" = "Tramonto";
+"Visibility" = "Visibilità";
+"Wind" = "Vento";
+"mi" = "mi";
+"m" = "m";
+"mph" = "mph";
+"mps" = "mps";
+"N" = "N";
+"NNE" = "NNE";
+"NE" = "NE";
+"ENE" = "ENE";
+"E" = "E";
+"ESE" = "ESE";
+"SE" = "SE";
+"SSE" = "SSE";
+"S" = "S";
+"SSW" = "SSW";
+"SW" = "SW";
+"WSW" = "WSW";
+"W" = "W";
+"WNW" = "WNW";
+"NNW" = "NNW";
+"NW" = "NW";
+
+
+"Metric" = "Metrico";
+"Imperial" = "Imperiale";
+
+"English" = "Inglese";
+"German" = "Tedesco";
+"Hindi" = "Hindi";
+"Italian" = "Italiano";
+"Japanese" = "Nipponese";
+"Russian" = "Russo";

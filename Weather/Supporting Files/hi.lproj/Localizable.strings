@@ -1,0 +1,39 @@
+"Settings" = "समायोजन";
+"UNITS" = "इकाइयां";
+"LANGUAGE" = "भाषा: हिन्दी";
+"Select language" = "भाषा का चयन करें";
+"Sunrise" = "सूर्योदय";
+"Sunset" = "सूर्य का अस्त होना";
+"Visibility" = "दृश्यता";
+"Wind" = "हवा";
+"mi" = "मी";
+"m" = "किमी";
+"mph" = "मी.प्र.घं.";
+"mps" = "किमी/घं";
+"N" = "N";
+"NNE" = "NNE";
+"NE" = "NE";
+"ENE" = "ENE";
+"E" = "E";
+"ESE" = "ESE";
+"SE" = "SE";
+"SSE" = "SSE";
+"S" = "S";
+"SSW" = "SSW";
+"SW" = "SW";
+"WSW" = "WSW";
+"W" = "W";
+"WNW" = "WNW";
+"NNW" = "NNW";
+"NW" = "NW";
+
+
+"Metric" = "मीट्रिक";
+"Imperial" = "शाही";
+
+"English" = "अंग्रेज़ी";
+"German" = "जर्मन";
+"Hindi" = "हिंदी";
+"Italian" = "इतालवी";
+"Japanese" = "जापानी";
+"Russian" = "रूसी";

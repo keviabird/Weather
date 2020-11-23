@@ -1,0 +1,39 @@
+"Settings" = "設定";
+"UNITS" = "単位";
+"LANGUAGE" = "言語";
+"Select language" = "言語を選択する";
+"Sunrise" = "日の出";
+"Sunset" = "日没";
+"Visibility" = "可視性";
+"Wind" = "風";
+"mi" = "mi";
+"m" = "m";
+"mph" = "mph";
+"mps" = "mps";
+"N" = "N";
+"NNE" = "NNE";
+"NE" = "NE";
+"ENE" = "ENE";
+"E" = "E";
+"ESE" = "ESE";
+"SE" = "SE";
+"SSE" = "SSE";
+"S" = "S";
+"SSW" = "SSW";
+"SW" = "SW";
+"WSW" = "WSW";
+"W" = "W";
+"WNW" = "WNW";
+"NNW" = "NNW";
+"NW" = "NW";
+
+
+"Metric" = "メトリック";
+"Imperial" = "インペリアル";
+
+"English" = "英語";
+"German" = "ドイツ人";
+"Hindi" = "ヒンディー語";
+"Italian" = "イタリアの";
+"Japanese" = "日本人";
+"Russian" = "ロシア";
