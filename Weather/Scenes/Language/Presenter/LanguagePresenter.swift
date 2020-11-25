@@ -6,7 +6,7 @@ protocol LanguagePresenterInput {
     func languageSelected(_ language: Language)
 }
 
-protocol LanguagePresenterOutput {
+protocol LanguagePresenterOutput: AnyObject {
     func getNavigationController() -> UINavigationController?
     func localize()
     func setLanguage(_ language: Language)
@@ -14,8 +14,8 @@ protocol LanguagePresenterOutput {
 
 class LanguagePresenter {
     
-    var view: LanguagePresenterOutput?
-    var model: Model!
+    weak var view: LanguagePresenterOutput?
+    var model: ModelInput!
     
     init(with view: LanguagePresenterOutput) {
         self.view = view
@@ -27,7 +27,7 @@ extension LanguagePresenter: LanguagePresenterInput {
     
     func viewDidLoad() {
         model.addObserver(self)
-        self.languageSelected(model.getSettings().language)
+        self.languageSelected(model.getLanguage())
     }
     
     func languageSelected(_ language: Language) {

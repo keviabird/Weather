@@ -1,7 +1,7 @@
 
 import Foundation
 
-protocol ModelOutput {
+protocol ModelOutput: AnyObject {
     
     func cityUpdated(_ city: String)
     func currentWeatherUpdated(_ weather: Weather)
@@ -12,16 +12,32 @@ protocol ModelOutput {
     func errorOccured(_ error: Error)
 }
 
-class Model: NSObject {
+class WeakModelOutput {
+  weak var value : ModelOutput?
+  init (value: ModelOutput) {
+    self.value = value
+  }
+}
+
+protocol ModelInput {
+    func addObserver(_ observer: ModelOutput)
+    func update(_ silent: Bool)
+    func getLanguage() -> Language
+    func getUnits() -> Units
+    func setLanguage(_ language: Language)
+    func setUnits(_ units: Units)
+}
+
+class Model: NSObject, ModelInput {
     
     private var settings: Settings = Settings(longitude: 0.1277, latitude: 51.5074)
     private var city: String?
     private let timeFormatter = DateFormatter()
     private let dayFormatter = DateFormatter()
-    private var locationService: LocationService!
-    private var weatherService: WeatherService!
+    private var locationService: LocationServiceInput!
+    private var weatherService: WeatherServiceInput!
     
-    private var delegates: [ModelOutput] = []
+    private var delegates = [WeakModelOutput]()
 
     override init() {
         super.init()
@@ -29,35 +45,41 @@ class Model: NSObject {
         timeFormatter.amSymbol = "AM"
         timeFormatter.pmSymbol = "PM"
         dayFormatter.dateFormat = "EEEE"
-        locationService = LocationService(model: self)
-        locationService.startService()
-        weatherService = WeatherService()
+        locationService = LocationService(delegate: self)
+        if let locationService = locationService as? LocationService {
+            locationService.startService()
+        }
+        weatherService = WeatherService(delegate: self)
     }
     
     func addObserver(_ observer: ModelOutput) {
         removeObserver(observer)
-        delegates.append(observer)
+        delegates.append(WeakModelOutput(value: observer))
     }
     
     func removeObserver(_ observer: ModelOutput) {
         delegates.removeAll { (existing) -> Bool in
-            observer.getName() == existing.getName()
+            observer.getName() == existing.value?.getName()
         }
     }
     
-    func getSettings() -> Settings {
-        return settings
+    func getLanguage() -> Language {
+        return settings.language
+    }
+    
+    func getUnits() -> Units {
+        return settings.units
     }
     
     func setLanguage(_ language: Language) {
         UserDefaults.standard.set(language.rawValue, forKey: "AppleLanguage")
         settings.language = language
-        dayFormatter.locale = Locale(identifier: getSettings().language.rawValue)
-        timeFormatter.locale = Locale(identifier: getSettings().language.rawValue)
+        dayFormatter.locale = Locale(identifier: getLanguage().rawValue)
+        timeFormatter.locale = Locale(identifier: getLanguage().rawValue)
         update(false)
         locationService.updateCity()
         delegates.forEach { (observer) in
-            observer.languageUpdated(language)
+            observer.value?.languageUpdated(language)
         }
     }
     
@@ -66,66 +88,15 @@ class Model: NSObject {
         settings.units = units
         update(false)
         delegates.forEach { (observer) in
-            observer.unitsUpdated(units)
-        }
-    }
-    
-    func setCoordinates(longitude: Double, latitude: Double) {
-        settings.longitude = longitude
-        settings.latitude = latitude
-        update()
-    }
-    
-    func setCity(_ city: String) {
-        self.city = city
-        delegates.forEach { (observer) in
-            observer.cityUpdated(city)
+            observer.value?.unitsUpdated(units)
         }
     }
     
     func update(_ silent: Bool = true) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             if let weakSelf = self {
-                weakSelf.weatherService.getWeather(weakSelf.settings) { [weak self] (json, error) in
-                    if let error = error {
-                        if !silent {
-                            self?.delegates.forEach { (observer) in
-                                DispatchQueue.main.async {
-                                    observer.errorOccured(error)
-                                }
-                            }
-                        }
-                        print(error)
-                        return
-                    }
-                    if let weather = self?.jsonToEntity(json) {
-                        self?.delegates.forEach { (observer) in
-                            DispatchQueue.main.async {
-                                observer.currentWeatherUpdated(weather)
-                            }
-                        }
-                    }
-                }
-                weakSelf.weatherService.getForecast(weakSelf.settings) { [weak self] (json, error) in
-                    if let error = error {
-                        if !silent {
-                            self?.delegates.forEach { (observer) in
-                                DispatchQueue.main.async {
-                                    observer.errorOccured(error)
-                                }
-                            }
-                        }
-                        print(error)
-                        return
-                    }
-                    if let forecast = self?.jsonToEntity(json) {
-                        self?.delegates.forEach { (observer) in
-                            DispatchQueue.main.async {
-                                observer.forecastUpdated(forecast)
-                            }
-                        }
-                    }
-                }
+                weakSelf.weatherService.getWeather(weakSelf.settings, silent: silent)
+                weakSelf.weatherService.getForecast(weakSelf.settings, silent: silent)
             }
         }
     }
@@ -224,5 +195,72 @@ class Model: NSObject {
         else if 326 < degrees, degrees < 348 { return "NNW".localized() }
         return ""
     }
+    
+}
+
+extension Model: LocationServiceOutput {
+    
+    func setCoordinates(longitude: Double, latitude: Double) {
+        settings.longitude = longitude
+        settings.latitude = latitude
+        update()
+    }
+    
+    func setCity(_ city: String) {
+        self.city = city
+        delegates.forEach { (observer) in
+            observer.value?.cityUpdated(city)
+        }
+    }
+    
+    func getLocale() -> Locale {
+        return Locale.init(identifier: settings.language.rawValue)
+    }
+    
+}
+
+extension Model: WeatherServiceOutput {
+    func weatherUpdated(_ json: WeatherJSON?, error: Error?, silent: Bool = true) {
+        if let error = error {
+            if !silent {
+                self.delegates.forEach { (observer) in
+                    DispatchQueue.main.async {
+                        observer.value?.errorOccured(error)
+                    }
+                }
+            }
+            print(error)
+            return
+        }
+        if let weather = self.jsonToEntity(json) {
+            self.delegates.forEach { (observer) in
+                DispatchQueue.main.async {
+                    observer.value?.currentWeatherUpdated(weather)
+                }
+            }
+        }
+    }
+    
+    func forecastUpdated(_ json: [WeatherJSON]?, error: Error?, silent: Bool = true) {
+        if let error = error {
+            if !silent {
+                self.delegates.forEach { (observer) in
+                    DispatchQueue.main.async {
+                        observer.value?.errorOccured(error)
+                    }
+                }
+            }
+            print(error)
+            return
+        }
+        if let forecast = self.jsonToEntity(json) {
+            self.delegates.forEach { (observer) in
+                DispatchQueue.main.async {
+                    observer.value?.forecastUpdated(forecast)
+                }
+            }
+        }
+    }
+    
     
 }

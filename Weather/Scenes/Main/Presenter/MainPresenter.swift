@@ -6,7 +6,7 @@ protocol MainPresenterInput {
     func viewDidLoad()
 }
 
-protocol MainPresenterOutput {
+protocol MainPresenterOutput: AnyObject {
     func getNavigationController() -> UINavigationController?
     func localize()
     func update(weather: Weather)
@@ -16,8 +16,8 @@ protocol MainPresenterOutput {
 
 class MainPresenter {
     
-    var view: MainPresenterOutput?
-    var model: Model!
+    weak var view: MainPresenterOutput?
+    var model: ModelInput!
     
     init(with view: MainPresenterOutput) {
         self.view = view

@@ -3,7 +3,7 @@ import Foundation
 
 final class LanguageBuilder {
     
-    static func build(model: Model) -> LanguageViewController {
+    static func build(model: ModelInput) -> LanguageViewController {
         let view = LanguageViewController(nibName: "LanguageViewController", bundle: nil)
         let presenter = LanguagePresenter(with: view)
         presenter.model = model

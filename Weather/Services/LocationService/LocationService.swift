@@ -2,14 +2,24 @@
 import Foundation
 import CoreLocation
 
+protocol LocationServiceOutput: AnyObject {
+    func setCoordinates(longitude: Double, latitude: Double)
+    func setCity(_ city: String)
+    func getLocale() -> Locale
+}
+
+protocol LocationServiceInput {
+    func updateCity()
+}
+
 class LocationService: NSObject {
 
     var locationManager: CLLocationManager?
-    var model: Model!
+    weak var delegate: LocationServiceOutput?
     
-    init(model: Model) {
+    init(delegate: LocationServiceOutput?) {
         super.init()
-        self.model = model
+        self.delegate = delegate
         locationManager = CLLocationManager()
         locationManager?.requestWhenInUseAuthorization()
         locationManager?.desiredAccuracy = kCLLocationAccuracyBestForNavigation
@@ -21,15 +31,23 @@ class LocationService: NSObject {
         updateCity()
     }
     
-    func updateCity(location: CLLocation? = nil) {
+    func updateCity(location: CLLocation?) {
         if let location = location ?? locationManager?.location {
             let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: model.getSettings().language.rawValue)) { [weak self] (placemarks, error) in
+            geocoder.reverseGeocodeLocation(location, preferredLocale: delegate?.getLocale()) { [weak self] (placemarks, error) in
                 if let placemark = placemarks?.last {
-                    self?.model.setCity(placemark.locality ?? "")
+                    self?.delegate?.setCity(placemark.locality ?? "")
                 }
             }
         }
+    }
+    
+}
+
+extension LocationService: LocationServiceInput {
+    
+    func updateCity() {
+        updateCity(location: nil)
     }
     
 }
@@ -38,7 +56,7 @@ extension LocationService: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        model.setCoordinates(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        delegate?.setCoordinates(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
         updateCity(location: location)
     }
     

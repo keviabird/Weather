@@ -8,7 +8,7 @@ protocol SettingsPresenterInput {
     func getSegmentedControlCellModel() -> SegmentedControlCellModel
 }
 
-protocol SettingsPresenterOutput {
+protocol SettingsPresenterOutput: AnyObject {
     func getNavigationController() -> UINavigationController?
     func setLanguage(_ language: Language)
     func setUnit(_ unit: Units)
@@ -16,8 +16,8 @@ protocol SettingsPresenterOutput {
 
 class SettingsPresenter {
     
-    var view: SettingsPresenterOutput?
-    var model: Model!
+    weak var view: SettingsPresenterOutput?
+    var model: ModelInput!
     
     init(with view: SettingsPresenterOutput) {
         self.view = view
@@ -29,8 +29,8 @@ extension SettingsPresenter: SettingsPresenterInput {
     
     func viewDidLoad() {
         model.addObserver(self)
-        view?.setLanguage(model.getSettings().language)
-        view?.setUnit(model.getSettings().units)
+        view?.setLanguage(model.getLanguage())
+        view?.setUnit(model.getUnits())
     }
     
     
@@ -49,7 +49,7 @@ extension SettingsPresenter: SettingsPresenterInput {
         values.forEach { (unit) in
             titles.append(unit.getTitle())
         }
-        let index = values.firstIndex(of: model.getSettings().units) ?? 0
+        let index = values.firstIndex(of: model.getUnits()) ?? 0
         return SegmentedControlCellModel(titles: titles, values: values, selected: index)
     }
     
