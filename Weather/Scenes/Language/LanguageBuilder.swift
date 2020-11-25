@@ -3,9 +3,10 @@ import Foundation
 
 final class LanguageBuilder {
     
-    static func build() -> LanguageViewController {
+    static func build(model: Model) -> LanguageViewController {
         let view = LanguageViewController(nibName: "LanguageViewController", bundle: nil)
         let presenter = LanguagePresenter(with: view)
+        presenter.model = model
         view.presenter = presenter
         return view
     }

@@ -4,19 +4,7 @@ import UIKit
 class SegmentedControlCell: UITableViewCell {
     
     static let identifier = "SegmentedControlCell"
-    var presenter: SettingsPresenterInput? {
-        didSet {
-            model = presenter?.getSegmentedControlCellModel()
-            if let model = model {
-                segmentedControl.removeAllSegments()
-                for (number, title) in model.titles.enumerated() {
-                    segmentedControl.insertSegment(withTitle: title, at: number, animated: false)
-                }
-                segmentedControl.addTarget(self, action: #selector(itemSelected), for: .valueChanged)
-                segmentedControl.selectedSegmentIndex = model.selected
-            }
-        }
-    }
+    var presenter: SettingsPresenterInput? 
     
     var model: SegmentedControlCellModel?
     
@@ -36,6 +24,16 @@ class SegmentedControlCell: UITableViewCell {
     
     @objc func itemSelected() {
         presenter?.unitSelected((model?.values[segmentedControl.selectedSegmentIndex]) ?? Units.metric)
+    }
+    
+    func configure(_ model: SegmentedControlCellModel) {
+        self.model = model
+        segmentedControl.removeAllSegments()
+        for (number, title) in model.titles.enumerated() {
+            segmentedControl.insertSegment(withTitle: title, at: number, animated: false)
+        }
+        segmentedControl.addTarget(self, action: #selector(itemSelected), for: .valueChanged)
+        segmentedControl.selectedSegmentIndex = model.selected
     }
     
     

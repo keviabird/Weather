@@ -3,29 +3,30 @@ import Foundation
 import CoreLocation
 
 class LocationService: NSObject {
-    
-    static private var service = LocationService()
 
     var locationManager: CLLocationManager?
+    var model: Model!
     
-    private override init() {
+    init(model: Model) {
+        super.init()
+        self.model = model
         locationManager = CLLocationManager()
         locationManager?.requestWhenInUseAuthorization()
         locationManager?.desiredAccuracy = kCLLocationAccuracyBestForNavigation
     }
     
-    static func startService() {
-        service.locationManager?.delegate = service
-        service.locationManager?.startUpdatingLocation()
+    func startService() {
+        locationManager?.delegate = self
+        locationManager?.startUpdatingLocation()
         updateCity()
     }
     
-    static func updateCity(location: CLLocation? = nil) {
-        if let location = location ?? service.locationManager?.location {
+    func updateCity(location: CLLocation? = nil) {
+        if let location = location ?? locationManager?.location {
             let geocoder = CLGeocoder()
-            geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: Model.shared.getSettings().language.rawValue)) { (placemarks, error) in
+            geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: model.getSettings().language.rawValue)) { [weak self] (placemarks, error) in
                 if let placemark = placemarks?.last {
-                    Model.shared.setCity(placemark.locality ?? "")
+                    self?.model.setCity(placemark.locality ?? "")
                 }
             }
         }
@@ -37,8 +38,8 @@ extension LocationService: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        Model.shared.setCoordinates(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
-        LocationService.updateCity(location: location)
+        model.setCoordinates(longitude: location.coordinate.longitude, latitude: location.coordinate.latitude)
+        updateCity(location: location)
     }
     
 }

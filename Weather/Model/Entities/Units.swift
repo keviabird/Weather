@@ -8,9 +8,9 @@ enum Units: String, CaseIterable {
     func getTitle() -> String {
         switch self {
         case .metric:
-            return "Metric"
+            return "Metric".localized()
         case .imperial:
-            return "Imperial"
+            return "Imperial".localized()
         }
     }
 }

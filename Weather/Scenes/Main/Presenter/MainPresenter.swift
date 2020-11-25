@@ -17,6 +17,7 @@ protocol MainPresenterOutput {
 class MainPresenter {
     
     var view: MainPresenterOutput?
+    var model: Model!
     
     init(with view: MainPresenterOutput) {
         self.view = view
@@ -27,13 +28,13 @@ class MainPresenter {
 extension MainPresenter: MainPresenterInput {
     
     func settingsDidTapped() {
-        let settingsController = SettingsBuilder.build()
+        let settingsController = SettingsBuilder.build(model: model)
         view?.getNavigationController()?.pushViewController(settingsController, animated: true)
     }
     
     func viewDidLoad() {
-        Model.shared.addObserver(self)
-        Model.shared.update(false)
+        model.addObserver(self)
+        model.update(false)
     }
     
 }

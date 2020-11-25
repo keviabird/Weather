@@ -12,22 +12,26 @@ protocol ModelOutput {
     func errorOccured(_ error: Error)
 }
 
-class Model {
-    
-    static let shared: Model = Model()
+class Model: NSObject {
     
     private var settings: Settings = Settings(longitude: 0.1277, latitude: 51.5074)
     private var city: String?
     private let timeFormatter = DateFormatter()
     private let dayFormatter = DateFormatter()
+    private var locationService: LocationService!
+    private var weatherService: WeatherService!
     
     private var delegates: [ModelOutput] = []
 
-    private init() {
+    override init() {
+        super.init()
         timeFormatter.dateFormat = "HH:mm a"
         timeFormatter.amSymbol = "AM"
         timeFormatter.pmSymbol = "PM"
         dayFormatter.dateFormat = "EEEE"
+        locationService = LocationService(model: self)
+        locationService.startService()
+        weatherService = WeatherService()
     }
     
     func addObserver(_ observer: ModelOutput) {
@@ -48,10 +52,10 @@ class Model {
     func setLanguage(_ language: Language) {
         UserDefaults.standard.set(language.rawValue, forKey: "AppleLanguage")
         settings.language = language
-        dayFormatter.locale = Locale(identifier: Model.shared.getSettings().language.rawValue)
-        timeFormatter.locale = Locale(identifier: Model.shared.getSettings().language.rawValue)
+        dayFormatter.locale = Locale(identifier: getSettings().language.rawValue)
+        timeFormatter.locale = Locale(identifier: getSettings().language.rawValue)
         update(false)
-        LocationService.updateCity()
+        locationService.updateCity()
         delegates.forEach { (observer) in
             observer.languageUpdated(language)
         }
@@ -80,43 +84,45 @@ class Model {
     }
     
     func update(_ silent: Bool = true) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            WeatherService.getWeather(self.settings) { (json, error) in
-                if let error = error {
-                    if !silent {
-                        Model.shared.delegates.forEach { (observer) in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            if let weakSelf = self {
+                weakSelf.weatherService.getWeather(weakSelf.settings) { [weak self] (json, error) in
+                    if let error = error {
+                        if !silent {
+                            self?.delegates.forEach { (observer) in
+                                DispatchQueue.main.async {
+                                    observer.errorOccured(error)
+                                }
+                            }
+                        }
+                        print(error)
+                        return
+                    }
+                    if let weather = self?.jsonToEntity(json) {
+                        self?.delegates.forEach { (observer) in
                             DispatchQueue.main.async {
-                                observer.errorOccured(error)
+                                observer.currentWeatherUpdated(weather)
                             }
                         }
                     }
-                    print(error)
-                    return
                 }
-                if let weather = Model.shared.jsonToEntity(json) {
-                    Model.shared.delegates.forEach { (observer) in
-                        DispatchQueue.main.async {
-                            observer.currentWeatherUpdated(weather)
-                        }
-                    }
-                }
-            }
-            WeatherService.getForecast(self.settings) { (json, error) in
-                if let error = error {
-                    if !silent {
-                        Model.shared.delegates.forEach { (observer) in
-                            DispatchQueue.main.async {
-                                observer.errorOccured(error)
+                weakSelf.weatherService.getForecast(weakSelf.settings) { [weak self] (json, error) in
+                    if let error = error {
+                        if !silent {
+                            self?.delegates.forEach { (observer) in
+                                DispatchQueue.main.async {
+                                    observer.errorOccured(error)
+                                }
                             }
                         }
+                        print(error)
+                        return
                     }
-                    print(error)
-                    return
-                }
-                if let forecast = Model.shared.jsonToEntity(json) {
-                    Model.shared.delegates.forEach { (observer) in
-                        DispatchQueue.main.async {
-                            observer.forecastUpdated(forecast)
+                    if let forecast = self?.jsonToEntity(json) {
+                        self?.delegates.forEach { (observer) in
+                            DispatchQueue.main.async {
+                                observer.forecastUpdated(forecast)
+                            }
                         }
                     }
                 }

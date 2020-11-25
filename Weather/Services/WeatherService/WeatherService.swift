@@ -3,15 +3,15 @@ import Foundation
 
 class WeatherService {
     
-    static let baseUrl = "https://api.openweathermap.org"
-    static let apiKey = "b54fd86d759d2ad51b278ee151ef4cf5"
+    private static let baseUrl = "https://api.openweathermap.org"
+    private static let apiKey = "b54fd86d759d2ad51b278ee151ef4cf5"
     
-    static let weather = "/data/2.5/weather"
-    static let forecast = "/data/2.5/forecast"
+    private static let weather = "/data/2.5/weather"
+    private static let forecast = "/data/2.5/forecast"
     
     
-    static func getWeather(_ settings: Settings, completion:  ((WeatherJSON?, Error?)->())?) {
-        if var url = URL.init(string: baseUrl + weather) {
+    func getWeather(_ settings: Settings, completion:  ((WeatherJSON?, Error?)->())?) {
+        if var url = URL.init(string: WeatherService.baseUrl + WeatherService.weather) {
             let params = getParameters(settings)
             url = URL.url(url: url, params: params)
             let session = URLSession.shared
@@ -34,8 +34,8 @@ class WeatherService {
         }
     }
     
-    static func getForecast(_ settings: Settings, completion:  (([WeatherJSON]?, Error?)->())?) {
-        if var url = URL.init(string: baseUrl + forecast) {
+     func getForecast(_ settings: Settings, completion:  (([WeatherJSON]?, Error?)->())?) {
+        if var url = URL.init(string: WeatherService.baseUrl + WeatherService.forecast) {
             let params = getParameters(settings)
             url = URL.url(url: url, params: params)
             let session = URLSession.shared
@@ -59,7 +59,7 @@ class WeatherService {
         }
     }
     
-    static func getParameters(_ settings: Settings) -> [String: String] {
+    func getParameters(_ settings: Settings) -> [String: String] {
         return [
             "lang" : settings.language.rawValue,
             "units" : settings.units.rawValue,

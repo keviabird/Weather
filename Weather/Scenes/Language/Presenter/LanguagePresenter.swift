@@ -15,6 +15,7 @@ protocol LanguagePresenterOutput {
 class LanguagePresenter {
     
     var view: LanguagePresenterOutput?
+    var model: Model!
     
     init(with view: LanguagePresenterOutput) {
         self.view = view
@@ -25,12 +26,12 @@ class LanguagePresenter {
 extension LanguagePresenter: LanguagePresenterInput {
     
     func viewDidLoad() {
-        Model.shared.addObserver(self)
-        self.languageSelected(Model.shared.getSettings().language)
+        model.addObserver(self)
+        self.languageSelected(model.getSettings().language)
     }
     
     func languageSelected(_ language: Language) {
-        Model.shared.setLanguage(language)
+        model.setLanguage(language)
     }
     
 }

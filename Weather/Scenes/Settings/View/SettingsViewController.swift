@@ -44,7 +44,10 @@ extension SettingsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             if let cell = tableView.dequeueReusableCell(withIdentifier: SegmentedControlCell.identifier, for: indexPath) as? SegmentedControlCell {
-                cell.presenter = presenter
+                if let presenter = presenter {
+                    cell.presenter = presenter
+                    cell.configure(presenter.getSegmentedControlCellModel())
+                }
                 return cell
             }
         } else {

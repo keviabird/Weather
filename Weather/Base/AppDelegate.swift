@@ -11,7 +11,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if #available(iOS 13.0, *) {
         } else {
-            let mainController = MainBuilder.build()
+            let model = Model()
+            let mainController = MainBuilder.build(model: model)
             let navigationController = UINavigationController(rootViewController: mainController)
             if window == nil {
                 window = UIWindow.init(frame: UIScreen.main.bounds)
@@ -20,7 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             window?.makeKeyAndVisible()
         }
         
-        LocationService.startService()
         return true
     }
 
